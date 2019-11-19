@@ -506,20 +506,9 @@ def main():
                                         from_tf=bool('.ckpt' in args.model_name_or_path),
                                         config=config,
                                         cache_dir=args.cache_dir if args.cache_dir else None)
-    
-    # Our new stuff
-    print('Will we be lucky???')
 
-    # Final layer is (1024, 2)
-    our_stuff = torch.nn.Sequential(
-                                    torch.nn.Linear(1024, 2),
-                                    torch.nn.ReLU(),
-                                    torch.nn.Linear(2, 128),
-                                    torch.nn.ReLU(),
-                                    torch.nn.Linear(128, 2),
-                                   )
-    list(model.children())[-1] = our_stuff
-    #model = torch.nn.Sequential(model, our_stuff)
+    if (ADD_OUR_STUFF):
+        add_our_stuff(model)
 
     if args.local_rank == 0:
         pass#torch.distributed.barrier()  # Make sure only the first process in distributed training will download model & vocab
@@ -563,14 +552,9 @@ def main():
 
         # Load a trained model and vocabulary that you have fine-tuned
         model = model_class.from_pretrained(args.output_dir)
-        our_stuff = torch.nn.Sequential(
-                                        torch.nn.Linear(1024, 2),
-                                        torch.nn.ReLU(),
-                                        torch.nn.Linear(2, 128),
-                                        torch.nn.ReLU(),
-                                        torch.nn.Linear(128, 2),
-                                       )
-        list(model.children())[-1] = our_stuff     
+        if (ADD_OUR_STUFF):
+            add_our_stuff(model)
+
         tokenizer = tokenizer_class.from_pretrained(args.output_dir, do_lower_case=args.do_lower_case)
         model.to(args.device)
 
@@ -589,14 +573,8 @@ def main():
             # Reload the model
             global_step = checkpoint.split('-')[-1] if len(checkpoints) > 1 else ""
             model = model_class.from_pretrained(checkpoint)
-            our_stuff = torch.nn.Sequential(
-                                            torch.nn.Linear(1024, 2),
-                                            torch.nn.ReLU(),
-                                            torch.nn.Linear(2, 128),
-                                            torch.nn.ReLU(),
-                                            torch.nn.Linear(128, 2),
-                                           )
-            list(model.children())[-1] = our_stuff     
+            if (ADD_OUR_STUFF):
+                add_our_stuff(model)
             model.to(args.device)
 
             # Evaluate
@@ -609,6 +587,18 @@ def main():
 
     return results
 
+def add_our_stuff(model):
+    our_stuff = torch.nn.Sequential(
+                                    torch.nn.Linear(1024, 2),
+                                    torch.nn.ReLU(),
+                                    torch.nn.Linear(2, 128),
+                                    torch.nn.ReLU(),
+                                    torch.nn.Linear(128, 2),
+                                    )
+    list(model.children())[-1] = our_stuff     
+
+# Toggle our layer for testing
+ADD_OUR_STUFF = False
 
 if __name__ == "__main__":
     from time import time
