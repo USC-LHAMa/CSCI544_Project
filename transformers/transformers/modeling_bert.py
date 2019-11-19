@@ -1279,7 +1279,7 @@ class BertForQuestionAnswering(BertPreTrainedModel):
         self.num_labels = config.num_labels
 
         self.bert = BertModel(config)
-        self.lin1 = nn.Linear(config.hidden_size, 2)
+        self.lin1 = nn.Linear(config.hidden_size, config.num_labels)
         # self.relu1 = nn.ReLU()
         # self.lin2 = nn.Linear(128, 256)
         # self.relu2 = nn.ReLU()
