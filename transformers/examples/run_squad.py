@@ -152,7 +152,7 @@ def train(args, train_dataset, model, tokenizer):
             if args.model_type in ['xlnet', 'xlm']:
                 inputs.update({'cls_index': batch[5],
                                'p_mask':       batch[6]})
-            outputs = model[0](**inputs)
+            outputs = model(**inputs)
             loss = outputs[0]  # model outputs are always tuple in transformers (see doc)
 
             if args.n_gpu > 1:
@@ -509,17 +509,17 @@ def main():
     
     # Our new stuff
     print('Will we be lucky???')
-    print(list(model.children())[-1])
 
     # Final layer is (1024, 2)
     our_stuff = torch.nn.Sequential(
-                                    torch.nn.Linear(2, 64),
+                                    torch.nn.Linear(1024, 2),
                                     torch.nn.ReLU(),
-                                    torch.nn.Linear(64, 128),
+                                    torch.nn.Linear(2, 128),
                                     torch.nn.ReLU(),
                                     torch.nn.Linear(128, 2),
                                    )
-    model = torch.nn.Sequential(model, our_stuff)
+    list(model.children())[-1] = our_stuff
+    #model = torch.nn.Sequential(model, our_stuff)
 
     if args.local_rank == 0:
         pass#torch.distributed.barrier()  # Make sure only the first process in distributed training will download model & vocab
@@ -563,15 +563,14 @@ def main():
 
         # Load a trained model and vocabulary that you have fine-tuned
         model = model_class.from_pretrained(args.output_dir)
-
         our_stuff = torch.nn.Sequential(
-                                        torch.nn.Linear(2, 64),
+                                        torch.nn.Linear(1024, 2),
                                         torch.nn.ReLU(),
-                                        torch.nn.Linear(64, 128),
+                                        torch.nn.Linear(2, 128),
                                         torch.nn.ReLU(),
                                         torch.nn.Linear(128, 2),
                                        )
-        model = torch.nn.Sequential(model, our_stuff)        
+        list(model.children())[-1] = our_stuff     
         tokenizer = tokenizer_class.from_pretrained(args.output_dir, do_lower_case=args.do_lower_case)
         model.to(args.device)
 
@@ -590,6 +589,14 @@ def main():
             # Reload the model
             global_step = checkpoint.split('-')[-1] if len(checkpoints) > 1 else ""
             model = model_class.from_pretrained(checkpoint)
+            our_stuff = torch.nn.Sequential(
+                                            torch.nn.Linear(1024, 2),
+                                            torch.nn.ReLU(),
+                                            torch.nn.Linear(2, 128),
+                                            torch.nn.ReLU(),
+                                            torch.nn.Linear(128, 2),
+                                           )
+            list(model.children())[-1] = our_stuff     
             model.to(args.device)
 
             # Evaluate
