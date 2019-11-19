@@ -1279,13 +1279,18 @@ class BertForQuestionAnswering(BertPreTrainedModel):
         self.num_labels = config.num_labels
 
         self.bert = BertModel(config)
-        self.qa_outputs = torch.nn.Sequential(
-                                                torch.nn.Linear(1024, 2),
-                                                torch.nn.ReLU(),
-                                                torch.nn.Linear(2, 128),
-                                                torch.nn.ReLU(),
-                                                torch.nn.Linear(128, 2),
-                                             )
+        self.lin1 = nn.Linear(config.hidden_size, 128)
+        self.relu1 = nn.ReLU()
+        self.lin2 = nn.Linear(128, 256)
+        self.relu2 = nn.ReLU()
+        self.lin3 = nn.Linear(256, 2)
+        # self.qa_outputs = torch.nn.Sequential(
+        #                                         torch.nn.Linear(config.hidden_size, 2),
+        #                                         torch.nn.ReLU(),
+        #                                         torch.nn.Linear(2, 128),
+        #                                         torch.nn.ReLU(),
+        #                                         torch.nn.Linear(128, 2),
+        #                                      )
 
         self.init_weights()
 
@@ -1300,8 +1305,12 @@ class BertForQuestionAnswering(BertPreTrainedModel):
                             inputs_embeds=inputs_embeds)
 
         sequence_output = outputs[0]
-
-        logits = self.qa_outputs(sequence_output)
+        logits = self.lin1(sequence_output)
+        logits = self.relu1(logits)
+        logits = self.lin2(logits)
+        logits = self.relu2(logits)
+        logits = self.lin3(logits)
+        #logits = self.qa_outputs(sequence_output)
         start_logits, end_logits = logits.split(1, dim=-1)
         start_logits = start_logits.squeeze(-1)
         end_logits = end_logits.squeeze(-1)
