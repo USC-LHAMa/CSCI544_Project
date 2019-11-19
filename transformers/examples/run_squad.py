@@ -507,19 +507,19 @@ def main():
                                         config=config,
                                         cache_dir=args.cache_dir if args.cache_dir else None)
     
-    # # Our new stuff
-    # print('Will we be lucky???')
-    # print(list(model.children())[-1])
+    # Our new stuff
+    print('Will we be lucky???')
+    print(list(model.children())[-1])
 
-    # # Final layer is (1024, 2)
-    # our_stuff = torch.nn.Sequential(
-    #                                 torch.nn.Linear(2, 64),
-    #                                 torch.nn.ReLU(),
-    #                                 torch.nn.Linear(64, 128),
-    #                                 torch.nn.ReLU(),
-    #                                 torch.nn.Linear(128, 2),
-    #                                )
-    # model = torch.nn.Sequential(model, our_stuff)
+    # Final layer is (1024, 2)
+    our_stuff = torch.nn.Sequential(
+                                    torch.nn.Linear(2, 64),
+                                    torch.nn.ReLU(),
+                                    torch.nn.Linear(64, 128),
+                                    torch.nn.ReLU(),
+                                    torch.nn.Linear(128, 2),
+                                   )
+    model = torch.nn.Sequential(model, our_stuff)
 
     if args.local_rank == 0:
         pass#torch.distributed.barrier()  # Make sure only the first process in distributed training will download model & vocab
@@ -563,6 +563,15 @@ def main():
 
         # Load a trained model and vocabulary that you have fine-tuned
         model = model_class.from_pretrained(args.output_dir)
+
+        our_stuff = torch.nn.Sequential(
+                                        torch.nn.Linear(2, 64),
+                                        torch.nn.ReLU(),
+                                        torch.nn.Linear(64, 128),
+                                        torch.nn.ReLU(),
+                                        torch.nn.Linear(128, 2),
+                                       )
+        model = torch.nn.Sequential(model, our_stuff)        
         tokenizer = tokenizer_class.from_pretrained(args.output_dir, do_lower_case=args.do_lower_case)
         model.to(args.device)
 
