@@ -63,7 +63,7 @@ ALL_MODELS = sum((tuple(conf.pretrained_config_archive_map.keys()) \
                   for conf in (BertConfig, XLNetConfig, XLMConfig)), ())
 
 MODEL_CLASSES = {
-    'bert': (BertConfig, BertForQuestionAnswering, BertTokenizer),  # CHANGE: Updated Bert to OurBert
+    'bert': (BertConfig, BertForQuestionAnswering, BertTokenizer),
     'xlnet': (XLNetConfig, XLNetForQuestionAnswering, XLNetTokenizer),
     'xlm': (XLMConfig, XLMForQuestionAnswering, XLMTokenizer),
     'distilbert': (DistilBertConfig, DistilBertForQuestionAnswering, DistilBertTokenizer)
@@ -507,8 +507,6 @@ def main():
                                         config=config,
                                         cache_dir=args.cache_dir if args.cache_dir else None)
 
-    if (ADD_OUR_STUFF):
-        add_our_stuff(model)
 
     if args.local_rank == 0:
         pass#torch.distributed.barrier()  # Make sure only the first process in distributed training will download model & vocab
@@ -552,8 +550,6 @@ def main():
 
         # Load a trained model and vocabulary that you have fine-tuned
         model = model_class.from_pretrained(args.output_dir)
-        if (ADD_OUR_STUFF):
-            add_our_stuff(model)
 
         tokenizer = tokenizer_class.from_pretrained(args.output_dir, do_lower_case=args.do_lower_case)
         model.to(args.device)
@@ -573,8 +569,6 @@ def main():
             # Reload the model
             global_step = checkpoint.split('-')[-1] if len(checkpoints) > 1 else ""
             model = model_class.from_pretrained(checkpoint)
-            if (ADD_OUR_STUFF):
-                add_our_stuff(model)
             model.to(args.device)
 
             # Evaluate
@@ -587,18 +581,6 @@ def main():
 
     return results
 
-def add_our_stuff(model):
-    our_stuff = torch.nn.Sequential(
-                                    torch.nn.Linear(1024, 2),
-                                    torch.nn.ReLU(),
-                                    torch.nn.Linear(2, 128),
-                                    torch.nn.ReLU(),
-                                    torch.nn.Linear(128, 2),
-                                    )
-    list(model.children())[-1] = our_stuff     
-
-# Toggle our layer for testing
-ADD_OUR_STUFF = False
 
 if __name__ == "__main__":
     from time import time
