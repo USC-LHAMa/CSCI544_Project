@@ -63,7 +63,7 @@ ALL_MODELS = sum((tuple(conf.pretrained_config_archive_map.keys()) \
                   for conf in (BertConfig, XLNetConfig, XLMConfig)), ())
 
 MODEL_CLASSES = {
-    'bert': (BertConfig, BertForQuestionAnswering, BertTokenizer),
+    'bert': (BertConfig, BertForQuestionAnswering, BertTokenizer),  # CHANGE: Updated Bert to OurBert
     'xlnet': (XLNetConfig, XLNetForQuestionAnswering, XLNetTokenizer),
     'xlm': (XLMConfig, XLMForQuestionAnswering, XLMTokenizer),
     'distilbert': (DistilBertConfig, DistilBertForQuestionAnswering, DistilBertTokenizer)
