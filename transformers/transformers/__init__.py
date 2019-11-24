@@ -103,6 +103,8 @@ if is_torch_available():
                                 CAMEMBERT_PRETRAINED_MODEL_ARCHIVE_MAP)
     from .modeling_encoder_decoder import PreTrainedEncoderDecoder, Model2Model
 
+    from .modeling_bert_lhama_extensions import (LHAMaCnnBertForQuestionAnswering, LHAMaLstmBertForQuestionAnswering)
+
     # Optimization
     from .optimization import (AdamW, get_constant_schedule, get_constant_schedule_with_warmup, get_cosine_schedule_with_warmup,
                                get_cosine_with_hard_restarts_schedule_with_warmup, get_linear_schedule_with_warmup)
