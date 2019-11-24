@@ -112,10 +112,6 @@ class LHAMaLstmBertForQuestionAnswering(BertForQuestionAnswering):
         start_logits = start_logits.squeeze(-1)
         end_logits = end_logits.squeeze(-1)
 
-        print('logits: {}'.format(logits.shape))
-        print('start_logits: {}'.format(start_logits.shape))
-        print('end_logits: {}'.format(start_logits.shape))
-
         outputs = (start_logits, end_logits,) + outputs[2:]
         if start_positions is not None and end_positions is not None:
             # If we are on multi-GPU, split add a dimension
