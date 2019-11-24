@@ -51,17 +51,64 @@ class LHAMaCnnBertForQuestionAnswering(BertForQuestionAnswering):
         else:
             logger.info('Fine-tuning for LHAMa CNN')
         
-        self.qa_outputs = nn.Sequential(
-                                          nn.Conv2d(config.hidden_size // 2, config.hidden_size, self.kernel_size, padding=self.padding),
-                                          nn.MaxPool2d(5),
-                                          nn.ReLU(),
-                                          nn.Conv2d(config.hidden_size, config.hidden_size, self.kernel_size, padding=self.padding),
-                                          nn.MaxPool2d(5),
-                                          nn.ReLU(),
-                                          nn.Linear(config.hidden_size, config.num_labels),
-                                       )
+        # self.qa_outputs = nn.Sequential(
+        #                                   nn.Conv1d(config.hidden_size // 2, config.hidden_size, self.kernel_size, padding=self.padding),
+        #                                   nn.MaxPool1d(self.kernel_size),
+        #                                   nn.ReLU(),
+        #                                   nn.Linear(config.hidden_size, config.num_labels),
+        #                                )
+
+        self.conv1 = nn.Conv1d(config.hidden_size // 2, config.hidden_size // 2, self.kernel_size, padding=self.padding)
+        self.pool1 = nn.MaxPool1d(self.kernel_size)
+        self.relu1 = nn.ReLU()
+        self.linear1 = nn.Linear(config.hidden_size, config.num_labels)
 
         self.init_weights()
+
+    def forward(self, input_ids=None, attention_mask=None, token_type_ids=None, position_ids=None, head_mask=None, inputs_embeds=None,
+                start_positions=None, end_positions=None):
+
+        outputs = self.bert(input_ids,
+                            attention_mask=attention_mask,
+                            token_type_ids=token_type_ids,
+                            position_ids=position_ids,
+                            head_mask=head_mask,
+                            inputs_embeds=inputs_embeds)
+
+        sequence_output = outputs[0]
+        sequence_output = sequence_output.permute(2, 1, 0)
+
+        #logits = self.qa_outputs(sequence_output)
+        logits = self.conv1(sequence_output)
+        # logits = self.pool1(logits)
+        # print('after pool: {}'.format(logits.shape))
+        logits = self.relu1(logits)
+        logits = logits.permute(2, 1, 0)
+        logits = self.linear1(logits)
+
+        start_logits, end_logits = logits.split(1, dim=-1)
+        start_logits = start_logits.squeeze(-1)
+        end_logits = end_logits.squeeze(-1)
+
+        outputs = (start_logits, end_logits,) + outputs[2:]
+        if start_positions is not None and end_positions is not None:
+            # If we are on multi-GPU, split add a dimension
+            if len(start_positions.size()) > 1:
+                start_positions = start_positions.squeeze(-1)
+            if len(end_positions.size()) > 1:
+                end_positions = end_positions.squeeze(-1)
+            # sometimes the start/end positions are outside our model inputs, we ignore these terms
+            ignored_index = start_logits.size(1)
+            start_positions.clamp_(0, ignored_index)
+            end_positions.clamp_(0, ignored_index)
+
+            loss_fct = CrossEntropyLoss(ignore_index=ignored_index)
+            start_loss = loss_fct(start_logits, start_positions)
+            end_loss = loss_fct(end_logits, end_positions)
+            total_loss = (start_loss + end_loss) / 2
+            outputs = (total_loss,) + outputs
+
+        return outputs  # (loss), start_logits, end_logits, (hidden_states), (attentions)
 
 
 class LHAMaLstmBertForQuestionAnswering(BertForQuestionAnswering):
