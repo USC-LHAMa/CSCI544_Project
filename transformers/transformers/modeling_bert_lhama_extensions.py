@@ -104,12 +104,10 @@ class LHAMaLstmBertForQuestionAnswering(BertForQuestionAnswering):
                             inputs_embeds=inputs_embeds)
 
         sequence_output = outputs[0]
-        output, (h_n, c_n) = self.lstm(sequence_output)
-        print('output: {}'.format(output.shape))
-        print('h_n: {}'.format(h_n.shape))
-        print('c_n: {}'.format(c_n.shape))
+        output, _ = self.lstm(sequence_output)
+
         # Get the output of the LSTM and send only the last layer to linear
-        logits = self.linear(output[:,:,-2:])
+        logits = self.linear(output)
         start_logits, end_logits = logits.split(1, dim=-1)
         start_logits = start_logits.squeeze(-1)
         end_logits = end_logits.squeeze(-1)
