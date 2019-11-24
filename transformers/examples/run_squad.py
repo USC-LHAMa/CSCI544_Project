@@ -43,10 +43,12 @@ from transformers import (WEIGHTS_NAME, BertConfig,
                                   XLMTokenizer, XLNetConfig,
                                   XLNetForQuestionAnswering,
                                   XLNetTokenizer,
-                                  DistilBertConfig, DistilBertForQuestionAnswering, DistilBertTokenizer)
+                                  DistilBertConfig, DistilBertForQuestionAnswering, DistilBertTokenizer,
+                                  LHAMaCnnBertForQuestionAnswering, LHAMaLstmBertForQuestionAnswering)
 
 from transformers import AdamW
-from transformers import WarmupLinearSchedule as get_linear_schedule_with_warmup
+#from transformers import WarmupLinearSchedule as get_linear_schedule_with_warmup
+from transformers import get_linear_schedule_with_warmup
 
 from utils_squad import (read_squad_examples, convert_examples_to_features,
                          RawResult, write_predictions,
@@ -66,7 +68,9 @@ MODEL_CLASSES = {
     'bert': (BertConfig, BertForQuestionAnswering, BertTokenizer),
     'xlnet': (XLNetConfig, XLNetForQuestionAnswering, XLNetTokenizer),
     'xlm': (XLMConfig, XLMForQuestionAnswering, XLMTokenizer),
-    'distilbert': (DistilBertConfig, DistilBertForQuestionAnswering, DistilBertTokenizer)
+    'distilbert': (DistilBertConfig, DistilBertForQuestionAnswering, DistilBertTokenizer),
+    'lhamacnn': (BertConfig, LHAMaCnnBertForQuestionAnswering, BertTokenizer),
+    'lhamalstm': (BertConfig, LHAMaLstmBertForQuestionAnswering, BertTokenizer)
 }
 
 def set_seed(args):
@@ -453,9 +457,6 @@ def main():
     parser.add_argument('--server_port', type=str, default='', help="Can be used for distant debugging.")
     args = parser.parse_args()
 
-    if args.version_2_with_negative:
-        print('We have version 2!')
-
     if os.path.exists(args.output_dir) and os.listdir(args.output_dir) and args.do_train and not args.overwrite_output_dir:
         raise ValueError("Output directory ({}) already exists and is not empty. Use --overwrite_output_dir to overcome.".format(args.output_dir))
 
@@ -467,14 +468,11 @@ def main():
         ptvsd.enable_attach(address=(args.server_ip, args.server_port), redirect_output=True)
         ptvsd.wait_for_attach()
 
-    print('what up')
     # Setup CUDA, GPU & distributed training
     if args.local_rank == -1 or args.no_cuda:
-        print('no cuda')
         device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
         args.n_gpu = torch.cuda.device_count()
     else:  # Initializes the distributed backend which will take care of sychronizing nodes/GPUs
-        print('sup')
         torch.cuda.set_device(args.local_rank)
         device = torch.device("cuda", args.local_rank)
         #torch.distributed.init_process_group(backend='nccl')
