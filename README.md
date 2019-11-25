@@ -10,6 +10,7 @@ The Illustrated Transformer: http://jalammar.github.io/illustrated-transformer/
 - Create Python virtual environment: `python -m venv .`
 - Activate virtual environment: `source ./bin/activate`
 - Install PyTorch: `pip install torch`
+- Install tensorboardX: `pip install tensorboardX`
 - Install other requirements: `pip install -r requirements.txt`
 - Even more requirements!: `pip install -r requirements-dev.txt`
 - Install LHAMa Transformers package: `python -m pip install -e .`
