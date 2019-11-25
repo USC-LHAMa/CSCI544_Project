@@ -11,6 +11,7 @@ The Illustrated Transformer: http://jalammar.github.io/illustrated-transformer/
 - Activate virtual environment: `source ./bin/activate`
 - Install PyTorch: `pip install torch`
 - Install other requirements: `pip install -r requirements.txt`
+- Even more requirements!: `pip install -r requirements-dev.txt`
 - Install LHAMa Transformers package: `python -m pip install -e .`
 
 ## Run SQuAD Task
