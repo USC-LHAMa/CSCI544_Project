@@ -26,6 +26,39 @@ from .modeling_bert import (BertModel, BertForQuestionAnswering)
 logger = logging.getLogger(__name__)
 
 
+class LHAMaLinearPlusQuestionAnswering(BertForQuestionAnswering):
+    """
+    Extension of the BERT for Question Answering model from HuggingFace.
+    Rather than a single linear layer on top of BERT, this model uses multiple
+    linear layers before outputting the start/stop output expected for the SQuAD task.
+    """
+
+    def __init__(self, config, freeze_weights=False):
+        super().__init__(config)
+        self.num_labels     = config.num_labels
+        self.bert           = BertModel(config)
+        self.freeze_weights = freeze_weights
+
+        if(self.freeze_weights):
+            logger.info('Freezing weights for LHAMa Linear Plus')
+            # Freeze the BERT weights, i.e. Feature Extraction to reduce training time
+            for name, param in self.bert.named_parameters():                
+                if name.startswith('embeddings'):
+                    param.requires_grad = False
+        else:
+            logger.info('Fine-tuning for LHAMa Linear Plus')
+        
+        self.qa_outputs = nn.Sequential(
+                                          nn.Linear(config.hidden_size, config.hidden_size * 2),
+                                          nn.ReLU(),
+                                          nn.Linear(config.hidden_size * 2, config.hidden_size),
+                                          nn.ReLU(),
+                                          nn.Linear(config.hidden_size, config.num_labels)
+                                       )
+
+        self.init_weights()
+
+
 class LHAMaCnnBertForQuestionAnswering(BertForQuestionAnswering):
     """
     Extension of the BERT for Question Answering model from HuggingFace.
