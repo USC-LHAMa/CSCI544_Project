@@ -44,7 +44,7 @@ from transformers import (WEIGHTS_NAME, BertConfig,
                                   XLNetForQuestionAnswering,
                                   XLNetTokenizer,
                                   DistilBertConfig, DistilBertForQuestionAnswering, DistilBertTokenizer,
-                                  LHAMaCnnBertForQuestionAnswering, LHAMaLstmBertForQuestionAnswering)
+                                  LHAMaLinearPlusQuestionAnswering, LHAMaCnnBertForQuestionAnswering, LHAMaLstmBertForQuestionAnswering)
 
 from transformers import AdamW
 #from transformers import WarmupLinearSchedule as get_linear_schedule_with_warmup
@@ -69,6 +69,7 @@ MODEL_CLASSES = {
     'xlnet': (XLNetConfig, XLNetForQuestionAnswering, XLNetTokenizer),
     'xlm': (XLMConfig, XLMForQuestionAnswering, XLMTokenizer),
     'distilbert': (DistilBertConfig, DistilBertForQuestionAnswering, DistilBertTokenizer),
+    'lhamalinear': (BertConfig, LHAMaLinearPlusQuestionAnswering, BertTokenizer),
     'lhamacnn': (BertConfig, LHAMaCnnBertForQuestionAnswering, BertTokenizer),
     'lhamalstm': (BertConfig, LHAMaLstmBertForQuestionAnswering, BertTokenizer)
 }
