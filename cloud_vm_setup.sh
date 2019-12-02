@@ -1,17 +1,17 @@
-#!/usr/bin/bash
+#!/usr/bin/sh
 
 # Create virtual environment and switch to it
 python -m venv .
-source ./bin/activate
+. ./bin/activate
 
 # Install requiremed libraries
 pip install torch
 pip install tensorboardX
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
+pip install -r ./transformers/requirements.txt
+pip install -r ./transformers/requirements-dev.txt
 
 # Install LHAMa customized Transformers package
-python -m pip install -e .
+python -m pip install -e ./transformers
 
 # Install tmux for running long-running processes
 sudo apt-get install tmux
