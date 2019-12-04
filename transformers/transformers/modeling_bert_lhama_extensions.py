@@ -48,6 +48,7 @@ class LHAMaLinearPlusQuestionAnswering(BertForQuestionAnswering):
         else:
             logger.info('Fine-tuning for LHAMa Linear Plus')
         
+        # Add additional FC layers with ReLU activations between them
         self.qa_outputs = nn.Sequential(
                                           nn.Linear(config.hidden_size, config.hidden_size * 2),
                                           nn.ReLU(),
@@ -84,15 +85,8 @@ class LHAMaCnnBertForQuestionAnswering(BertForQuestionAnswering):
         else:
             logger.info('Fine-tuning for LHAMa CNN')
         
-        # self.qa_outputs = nn.Sequential(
-        #                                   nn.Conv1d(config.hidden_size // 2, config.hidden_size, self.kernel_size, padding=self.padding),
-        #                                   nn.MaxPool1d(self.kernel_size),
-        #                                   nn.ReLU(),
-        #                                   nn.Linear(config.hidden_size, config.num_labels),
-        #                                )
-
+        # Add additional convolutional layer with ReLU activation
         self.conv1 = nn.Conv1d(config.hidden_size // 2, config.hidden_size // 2, self.kernel_size, padding=self.padding)
-        self.pool1 = nn.MaxPool1d(self.kernel_size)
         self.relu1 = nn.ReLU()
         self.linear1 = nn.Linear(config.hidden_size, config.num_labels)
 
@@ -101,6 +95,7 @@ class LHAMaCnnBertForQuestionAnswering(BertForQuestionAnswering):
     def forward(self, input_ids=None, attention_mask=None, token_type_ids=None, position_ids=None, head_mask=None, inputs_embeds=None,
                 start_positions=None, end_positions=None):
 
+        # Send input through pre-trained BERT
         outputs = self.bert(input_ids,
                             attention_mask=attention_mask,
                             token_type_ids=token_type_ids,
@@ -111,10 +106,8 @@ class LHAMaCnnBertForQuestionAnswering(BertForQuestionAnswering):
         sequence_output = outputs[0]
         sequence_output = sequence_output.permute(2, 1, 0)
 
-        #logits = self.qa_outputs(sequence_output)
+        # Send BERT output through convolutional and final linear layers
         logits = self.conv1(sequence_output)
-        # logits = self.pool1(logits)
-        # print('after pool: {}'.format(logits.shape))
         logits = self.relu1(logits)
         logits = logits.permute(2, 1, 0)
         logits = self.linear1(logits)
@@ -168,6 +161,7 @@ class LHAMaLstmBertForQuestionAnswering(BertForQuestionAnswering):
         else:
             logger.info('Fine-tuning for LHAMa LSTM')
         
+        # Add additional LSTM layer
         self.lstm = nn.LSTM(batch_first=True, input_size=config.hidden_size,
                             hidden_size=config.hidden_size*2, num_layers=self.num_layers)
         self.linear = nn.Linear(config.hidden_size*2, config.num_labels)
@@ -176,6 +170,7 @@ class LHAMaLstmBertForQuestionAnswering(BertForQuestionAnswering):
     def forward(self, input_ids=None, attention_mask=None, token_type_ids=None, position_ids=None, head_mask=None, inputs_embeds=None,
                 start_positions=None, end_positions=None):
 
+        # Send input through pre-trained BERT
         outputs = self.bert(input_ids,
                             attention_mask=attention_mask,
                             token_type_ids=token_type_ids,

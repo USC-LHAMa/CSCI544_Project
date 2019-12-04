@@ -47,7 +47,6 @@ from transformers import (WEIGHTS_NAME, BertConfig,
                                   LHAMaLinearPlusQuestionAnswering, LHAMaCnnBertForQuestionAnswering, LHAMaLstmBertForQuestionAnswering)
 
 from transformers import AdamW
-#from transformers import WarmupLinearSchedule as get_linear_schedule_with_warmup
 from transformers import get_linear_schedule_with_warmup
 
 from utils_squad import (read_squad_examples, convert_examples_to_features,
@@ -69,9 +68,9 @@ MODEL_CLASSES = {
     'xlnet': (XLNetConfig, XLNetForQuestionAnswering, XLNetTokenizer),
     'xlm': (XLMConfig, XLMForQuestionAnswering, XLMTokenizer),
     'distilbert': (DistilBertConfig, DistilBertForQuestionAnswering, DistilBertTokenizer),
-    'lhamalinear': (BertConfig, LHAMaLinearPlusQuestionAnswering, BertTokenizer),
-    'lhamacnn': (BertConfig, LHAMaCnnBertForQuestionAnswering, BertTokenizer),
-    'lhamalstm': (BertConfig, LHAMaLstmBertForQuestionAnswering, BertTokenizer)
+    'lhamalinear': (BertConfig, LHAMaLinearPlusQuestionAnswering, BertTokenizer),  # Custom LHAMa linear+ model
+    'lhamacnn': (BertConfig, LHAMaCnnBertForQuestionAnswering, BertTokenizer),     # Custom LHAMa CNN model
+    'lhamalstm': (BertConfig, LHAMaLstmBertForQuestionAnswering, BertTokenizer)    # Custom LHAMa LSTM model
 }
 
 def set_seed(args):
@@ -106,9 +105,6 @@ def train(args, train_dataset, model, tokenizer):
         {'params': [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
         ]
     optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate, eps=args.adam_epsilon)
-    
-    # TODO: Received an error saying num_warmup_steps was an unexpected parameter
-    #scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=args.warmup_steps, num_training_steps=t_total)
     scheduler = get_linear_schedule_with_warmup(optimizer, args.warmup_steps, t_total)
 
     if args.fp16:
@@ -586,4 +582,4 @@ if __name__ == "__main__":
     start = time()
     main()
     total = time() - start
-    print('Took {time}!'.format(time=total))
+    logger.info("Took {}s!".format(total))
