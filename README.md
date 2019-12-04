@@ -33,6 +33,7 @@ More details can be found in our full report.
 - Valid values for `--train_file`:
   - `input/train-v2.0.json`: SQuAD 2.0 training set
   - `input/train-v2.1.json`: LHAMa SQuAD 2.1 training set with additional adversarial questions
+- To reproduce our results, run eight combinations of the four model types with the two training files
 
 `python -m torch.distributed.launch --nproc_per_node=1 ./examples/run_squad.py --model_type lhamacnn --model_name_or_path bert-base-uncased --do_train --do_lower_case --do_eval --train_file input/train-v2.1.json --predict_file input/dev-v2.0.json --learning_rate 2e-5 --num_train_epochs 4 --max_seq_length 384 --doc_stride 128 --output_dir ../models/lhamacnn/ --per_gpu_eval_batch_size=12 --per_gpu_train_batch_size=12 --version_2_with_negative --local_rank=-1 --overwrite_output_dir --save_steps 5000`
 
