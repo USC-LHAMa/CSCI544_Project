@@ -15,3 +15,8 @@ python -m pip install -e ./transformers
 
 # Install tmux for running long-running processes
 sudo apt-get install tmux
+
+# Unzip SQuAD v2.1 training file
+cd transformers/input
+unzip train-v2.1-full.json.zip
+cd ../..
