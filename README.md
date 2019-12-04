@@ -8,7 +8,7 @@ The HuggingFace code was cloned into the `transformers` folder of this repo and 
 - Update SQuAD runner to support our models in `transformers/examples/run_squad.py`
 - Support imports of our new models in `transformers/transformers/__init__.py`
 
-We 200+ new unanswerable questions with our two methods and added them to the `transformers/input/train-v2.1-full.json` file. Training of our models was done on both the SQuAD v2.0 and our new v2.1 datasets on Google Cloud Deep Learning VMs. Raw questions can be found here: https://docs.google.com/spreadsheets/d/1U_hFs7XXiaMlVAUdkKGQwgfIHjilrFB_SVV0OuLtk9s/.
+We created nearly 200 new unanswerable questions with our two methods and added them to the `transformers/input/train-v2.1-full.json` file. Training of our models was done on both the SQuAD v2.0 and our new v2.1 datasets on Google Cloud Deep Learning VMs. Raw questions can be found here: https://docs.google.com/spreadsheets/d/1U_hFs7XXiaMlVAUdkKGQwgfIHjilrFB_SVV0OuLtk9s/.
 
 More details can be found in our full report.
 
