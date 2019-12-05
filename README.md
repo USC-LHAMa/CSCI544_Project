@@ -13,6 +13,7 @@ We created nearly 200 new unanswerable questions with our two methods and added 
 More details can be found in our full report.
 
 ## Requirements to Run
+- Tested only on MacOS/Linux
 - Python 3.7
 
 ## Installation on Laptop/VM
